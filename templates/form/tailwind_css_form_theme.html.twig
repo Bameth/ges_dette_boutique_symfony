@@ -1,0 +1,44 @@
+{% block form_start %}
+    <form action="{{ action|default('#') }}" method="{{ method|default('POST') }}" {{ block('attributes') }}>
+{% endblock %}
+
+{% block row %}
+    <div class="mb-4">
+        {{ form_label(form) }}
+        <div class="mt-2">
+            {{ form_widget(form) }}
+            {{ form_errors(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block label %}
+    <label {{ block('label_attributes') }} for="{{ id }}" class="block text-gray-700 text-sm font-bold mb-2">{{ label|trans }}</label>
+{% endblock %}
+
+{% block widget_container %}
+    <div {{ block('widget_container_attributes') }}>
+        {{ block('widget') }}
+    </div>
+{% endblock %}
+
+{% block widget %}
+    {% set input_classes = 'shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2' %}
+    {% if type == 'textarea' %}
+        <textarea {{ block('widget_attributes') }} class="{{ input_classes }}"></textarea>
+    {% else %}
+        <input type="{{ type|default('text') }}" {{ block('widget_attributes') }} class="{{ input_classes }} {{ not error is empty ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500' }}" />
+    {% endif %}
+{% endblock %}
+
+{% block errors %}
+    {% if not error is empty %}
+        <span id="error-{{ id }}" class="text-red-500 text-xs italic">{{ error|trans }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block submit_button %}
+    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        {{ submit_label|default('Submit')|trans }}
+    </button>
+{% endblock %}
