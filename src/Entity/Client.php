@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
@@ -16,12 +17,21 @@ class Client
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Le nom ne doit pas être vide.")]
+    #[Assert\Length(max: 50, maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères.")]
     private ?string $surname = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Le numéro de téléphone ne doit pas être vide.")]
+    #[Assert\Length(max: 50, maxMessage: "Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.")]
+    #[Assert\Regex(
+        pattern: '/^\+?\d{10,15}$/',
+        message: "Le numéro de téléphone doit être valide et contenir entre 10 et 15 chiffres."
+    )]
     private ?string $telephone = null;
     
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "L'adresse ne doit pas être vide.")]
     private ?string $adresse = null;
 
     #[ORM\Column]

@@ -7,9 +7,20 @@
     <div class="bg-white shadow-lg rounded-lg p-8 max-w-lg mx-auto mt-10">
         <h1 class="text-3xl font-extrabold text-blue-600 text-center mb-6">Enregistrement d'un Client</h1>
         <form method="POST" action="{{ path('clients.store') }}">
-            {{ form(formClient) }}
-        </form>
+            {{ form_start(formClient) }}
+            {{ form_widget(formClient) }}
+            
+            <!-- Affichage des erreurs du formulaire -->
+            <div class="mt-4">
+                {% for error in formClient.vars.errors %}
+                    <div class="text-red-500">{{ error.message }}</div>
+                {% endfor %}
+            </div>
 
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl mt-5">Enregistrer</button>
+            {{ form_end(formClient) }}
+        </form>
     </div>
 </div>
+
 {% endblock %}

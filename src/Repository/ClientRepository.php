@@ -40,4 +40,20 @@ class ClientRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function searchClients(?string $telephone, ?string $surname): array
+{
+    $qb = $this->createQueryBuilder('c');
+
+    if ($telephone) {
+        $qb->andWhere('c.telephone LIKE :telephone')
+           ->setParameter('telephone', '%' . $telephone . '%');
+    }
+
+    if ($surname) {
+        $qb->andWhere('c.surname LIKE :surname')
+           ->setParameter('surname', '%' . $surname . '%');
+    }
+
+    return $qb->getQuery()->getResult();
+}
 }
