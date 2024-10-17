@@ -4,11 +4,9 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Client;
+use App\Form\ClientSearchType;
 use App\Form\UserType;
 use App\Form\ClientType;
-use App\Model\ClientModel;
-use App\Model\ClientSearch;
-use App\Form\ClientSearchType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,37 +16,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ClientController extends AbstractController
 {
-    private ClientModel $clientModel;
-    public function __construct()
+    #[Route('/clients', name: 'clients.index', methods: ['GET','POST'])]
+    public function index(ClientRepository $clientRepository, Request $request): Response
     {
-        $this->clientModel = new ClientModel();
-    }
-    #[Route('/clients', name: 'clients.index', methods: ['GET'])]
-    // public function index(ClientRepository  $clientRepository,int $page = 0): Response
-    // {
-    //     /*
-    //         Methodes de répository permet de récupérer les données d'une entité :
-    //             findAll() : Retourne tous les objets de la classe
-    //             find($id) : Retourne un objet unique grâce à son id
-    //             findBy(['field' => 'value']) : Retourne une liste d'objets en fonction d'un ou plusieurs champs
-    //             findBy(['field1' => 'value1', 'field2' => 'value2']) : Retourne une liste d'objets en fonction de plusieurs champs
-    //             findOneBy(['field' => 'value']) : Retourne un objet unique en fonction d'un ou plusieurs champs
-    //             findOneBy(['field1' => 'value1', 'field2' => 'value2']) : Retourne un objet unique en fonction de plusieurs champs
-    //             findOneBy(['field' => 'value'], ['order_field' => 'ASC']) : Retourne un objet unique en fonction d'un ou plusieurs champs et tri
-    //     */
-    //     $clients = $clientRepository->findAll();
-    //     return $this->render('client/index.html.twig', [
-    //         'datas' => $clients
-    //     ]);
-    // }
-    #[Route('/clients/{page}', name: 'clients.index', requirements: ['page' => '\d+'], methods: ['GET', 'POST'])]
-    public function index(Request $request,int $page = 0): Response
-    {    
+        $formSearch = $this->createForm(ClientSearchType::class);
+        $formSearch->handleRequest($request);
+        $page = $request->query->getInt('page', 1);
+        $limit = 2;
+        if ($formSearch->isSubmitted($request) && $formSearch->isValid()) {
+            $clients = $clientRepository->findBy(['telephone' => $formSearch->get('telephone')->getData()]);
+        } else {
+            $clients = $clientRepository->paginateClients($page, $limit);
+        }
 
-        $clients = $this->clientModel->findAllWithPaginate($page, 2);
         return $this->render('client/index.html.twig', [
-            "response" => $clients,
-            "currentPage" => $page,
+            'datas' => $clients,
+            'page' => $page,
+            'maxPage' => ceil($clientRepository->getTotalClients() / $limit),
+            'totalElements' => count($clients),
+            'currentPage' => $page,
+            'formSearch' => $formSearch->createView(),
         ]);
     }
 
@@ -60,30 +47,19 @@ class ClientController extends AbstractController
         ]);
     }
 
-    #[Route('/clients/search/telephone', name: 'clients.searchByTelephone', methods: ['GET'])]
-public function searchClients(Request $request, ClientRepository $clientRepository,int $page = 0): Response
-{
-    $telephone = $request->query->get('telephone');
+    #[Route('/clients/search/telephone', name: 'clients.searchClientByTelephone', methods: ['GET'])]
+    public function searchlientByTelephone(Request $request): Response
+    {
+        // query => $_GET
+        // request => $_POST
+        // $request->query->get('key') => $_GET['key']
+        // $request->request->get('name_field') => $_POST['name_field']
 
-    // Vérifier si le champ 'telephone' est renseigné
-    if ($telephone) {
-        // Rechercher le client par téléphone
-        $clients = $clientRepository->createQueryBuilder('c')
-            ->where('c.telephone LIKE :telephone')
-            ->setParameter('telephone', '%' . $telephone . '%')
-            ->getQuery()
-            ->getResult();
-    } else {
-        // Si aucun téléphone n'est fourni, retourner tous les clients ou afficher un message
-        $clients = $this->clientModel->findAllWithPaginate($page, 2);
+        $telephone = $request->query->get('tel');
+        return $this->render('client/index.html.twig', [
+            'controller_name' => 'ClientController',
+        ]);
     }
-
-    return $this->render('client/index.html.twig', [
-        "response" => ['data' => $clients],
-        "currentPage" => 0,
-    ]);
-}
-
 
     #[Route('/clients/remove/{id?}', name: 'clients.remove', methods: ['GET'])]
     public function remove(int $id): Response
@@ -94,31 +70,29 @@ public function searchClients(Request $request, ClientRepository $clientReposito
     }
 
     #[Route('/clients/store', name: 'clients.store', methods: ['GET', 'POST'])]
-public function store(Request $request, EntityManagerInterface $entityManager): Response
-{
-    $client = new Client();
-    $user= new User();
-    $form = $this->createForm(ClientType::class, $client);
-    $formUser = $this->createForm(UserType::class);
-    $form->handleRequest($request);
+    public function store(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $client = new Client();
+        $user = new User();
+        $formClient = $this->createForm(ClientType::class, $client);
+        $formUser = $this->createForm(UserType::class, $user);
+        $formClient->handleRequest($request);
+        $formUser->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        // Assurez-vous que les dates sont définies
-        $client->setCreateAt(new \DateTimeImmutable());
-        $client->setUpdateAt(new \DateTimeImmutable());
-
-        // Enregistrement
-        $entityManager->persist($client);
-        $entityManager->flush();
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        return $this->redirectToRoute('clients.index');
+        if ($formClient->isSubmitted() && $formClient->isValid()) {
+            $entityManager->persist($client);
+            // Vérification si le formulaire utilisateur doit être soumis
+            if ($request->request->get('toggleUser') === 'on' && $formUser->isSubmitted() && $formUser->isValid()) {
+                $entityManager->persist($user);
+                $client->setUser($user); // Lier le client à l'utilisateur
+            }
+            $entityManager->flush();
+            return $this->redirectToRoute('clients.index');
+        }
+        return $this->render('client/form.html.twig', [
+            'formClient' => $formClient->createView(),
+            'formUser' => $formUser->createView(),
+            'client' => $client, // Assurez-vous que le client est passé à la vue
+        ]);
     }
-
-    return $this->render('client/form.html.twig', [
-        'formClient' => $form->createView(),
-        'formUser' => $formUser->createView(), // Passez le formulaire utilisateur
-    ]);
-}
 }

@@ -16,20 +16,32 @@ class DetteRepository extends ServiceEntityRepository
         parent::__construct($registry, Dette::class);
     }
 
-    //    /**
-    //     * @return Dette[] Returns an array of Dette objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('d')
-    //            ->andWhere('d.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('d.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function paginateDetteClients(int $page = 0, int $limit = 2): array
+    {
+        $pageOffset = ($page - 1) * $limit;
+
+        $totalClients = (int) $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $query = $this->createQueryBuilder('d')
+            ->leftJoin('d.client', 'c')
+            ->addSelect('c')
+            ->orderBy('d.id', 'ASC')
+            ->setFirstResult($pageOffset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+    public function getTotalDetteClients(): int
+    {
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
     //    public function findOneBySomeField($value): ?Dette
     //    {

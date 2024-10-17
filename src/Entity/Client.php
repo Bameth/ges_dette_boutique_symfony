@@ -25,8 +25,8 @@ class Client
     #[Assert\NotBlank(message: "Le numéro de téléphone ne doit pas être vide.")]
     #[Assert\Length(max: 50, maxMessage: "Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.")]
     #[Assert\Regex(
-        pattern: '/^\+?\d{10,15}$/',
-        message: "Le numéro de téléphone doit être valide et contenir entre 10 et 15 chiffres."
+        pattern: '/^\+?\d{9,12}$/',
+        message: "Le numéro de téléphone doit être valide et contenir entre 9 et 12 chiffres."
     )]
     private ?string $telephone = null;
     
@@ -52,6 +52,8 @@ class Client
     public function __construct()
     {
         $this->dettes = new ArrayCollection();
+        $this->createAt = new \DateTimeImmutable();
+        $this->updateAt = new \DateTimeImmutable();
     }
 
 

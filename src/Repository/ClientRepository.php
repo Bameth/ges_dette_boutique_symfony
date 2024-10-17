@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Client;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Client>
@@ -16,20 +17,35 @@ class ClientRepository extends ServiceEntityRepository
         parent::__construct($registry, Client::class);
     }
 
-    //    /**
-    //     * @return Client[] Returns an array of Client objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function paginateClients(int $page = 0, int $limit = 2): array
+    {
+        $pageOffset = ($page - 1) * $limit;
+
+        $totalClients = (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $query = $this->createQueryBuilder('c')
+            ->leftJoin('c.user', 'u')
+            ->addSelect('u')
+            ->orderBy('c.id', 'ASC')
+            ->setFirstResult($pageOffset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function getTotalClients(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+
 
     //    public function findOneBySomeField($value): ?Client
     //    {
@@ -40,20 +56,4 @@ class ClientRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-    public function searchClients(?string $telephone, ?string $surname): array
-{
-    $qb = $this->createQueryBuilder('c');
-
-    if ($telephone) {
-        $qb->andWhere('c.telephone LIKE :telephone')
-           ->setParameter('telephone', '%' . $telephone . '%');
-    }
-
-    if ($surname) {
-        $qb->andWhere('c.surname LIKE :surname')
-           ->setParameter('surname', '%' . $surname . '%');
-    }
-
-    return $qb->getQuery()->getResult();
-}
 }

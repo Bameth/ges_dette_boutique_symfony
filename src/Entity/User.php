@@ -6,6 +6,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table("users")]
+
 class User
 {
     #[ORM\Id]
@@ -16,13 +18,13 @@ class User
     #[ORM\Column(length: 50)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 50)]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 100, unique: true)]
     private ?string $login = null;
 
-    #[ORM\Column(length: 25)]
+    #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     #[ORM\Column]
@@ -37,6 +39,13 @@ class User
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Client $client = null;
 
+
+    public function __construct(){
+        $this->createAt = new \DateTimeImmutable();
+        $this->updateAt = new \DateTimeImmutable();
+        $this->isBlocked = false;
+    }
+    
     public function getId(): ?int
     {
         return $this->id;
