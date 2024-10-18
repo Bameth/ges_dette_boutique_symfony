@@ -9,30 +9,27 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class DetteSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('telephone', TextType::class, [
+            ->add('statut', CheckboxType::class, [
+                'label' => 'Afficher seulement les dettes payées',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Entrez le numéro de téléphone',
-                    'class' => 'border border-gray-300 rounded-md p-2',
-                ],
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez renseigner un numéro de téléphone valide.']),
-                    new Regex('/^(77|78|76)[0-9]{7}$/', 'Numéro de téléphone non valide.'),
-                ],
+                    'class' => 'form-checkbox h-5 w-5 text-blue-600 ml-2',
+                ]
             ]);
     }
+
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Dette::class,
+            'data_class' => null,
         ]);
     }
 }

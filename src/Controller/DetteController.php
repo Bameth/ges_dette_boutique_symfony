@@ -25,12 +25,20 @@ class DetteController extends AbstractController
         $page = $request->query->getInt('page', 1);
         $limit = 2;
 
+        $criteria = [];
+
         if ($formSearch->isSubmitted() && $formSearch->isValid()) {
-            $telephone = $formSearch->get('telephone')->getData();
-            $dettes = $detteRepository->findBy(['telephone' => $telephone]);
+            $statut = $formSearch->get('statut')->getData();
+
+            if ($statut) {
+                $criteria['montantVerser'] = 'montant';
+            }
+
+            $dettes = $detteRepository->findBy($criteria);
         } else {
             $dettes = $detteRepository->paginateDetteClients($page, $limit);
         }
+
         return $this->render('dette/index.html.twig', [
             'datas' => $dettes,
             'page' => $page,
@@ -42,11 +50,13 @@ class DetteController extends AbstractController
     }
 
 
+
+
     #[Route('/dettes/store', name: 'dettes.store', methods: ['GET', 'POST'])]
     public function store(Request $request, EntityManagerInterface $entityManager, DetteRepository $detteRepository): Response
     {
         $dette = new Dette();
-        $client = new Client(); 
+        $client = new Client();
 
         $formDette = $this->createForm(DetteType::class, $dette);
         $formClient = $this->createForm(ClientType::class, $client);
@@ -55,17 +65,15 @@ class DetteController extends AbstractController
         $formClient->handleRequest($request);
 
         if ($formDette->isSubmitted() && $formDette->isValid()) {
-            $toggleUser = $request->request->get('toggleUser', false); // Récupération de la valeur du checkbox
+            $toggleUser = $request->request->get('toggleUser', false);
 
             if ($toggleUser) {
-                // Si le client est validé, associez-le à la dette
                 $formClient->handleRequest($request);
                 if ($formClient->isSubmitted() && $formClient->isValid()) {
-                    $entityManager->persist($client); // Enregistrez le nouveau client
+                    $entityManager->persist($client);
                 }
             } else {
-                // Trouvez le client existant s'il n'y a pas d'utilisateur à créer
-                $clientId = $formDette->get('client')->getData(); // Assurez-vous que le champ client est rempli
+                $clientId = $formDette->get('client')->getData();
                 $client = $entityManager->getRepository(Client::class)->find($clientId);
 
                 if (!$client) {
@@ -74,10 +82,9 @@ class DetteController extends AbstractController
             }
 
             $dette->setClient($client);
-            $entityManager->persist($dette); // Préparez la dette pour l'enregistrement
-            $entityManager->flush(); // Enregistrez les changements en base de données
+            $entityManager->persist($dette);
+            $entityManager->flush();
 
-            // Redirection avec un message de succès
             $this->addFlash('success', 'La dette a été créée avec succès.');
             return $this->redirectToRoute('dettes.index');
         }
