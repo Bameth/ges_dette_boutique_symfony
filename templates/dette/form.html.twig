@@ -4,20 +4,20 @@
 
 {% block body %}
 <div class="container mx-auto p-6">
-    <div class="bg-white shadow-xl rounded-lg p-8 max-w-lg mx-auto mt-10">
-        <h1 class="text-4xl font-bold text-blue-600 text-center mb-6">Enregistrement d'un Client</h1>
+    <div class="bg-white shadow-2xl rounded-lg p-8 max-w-lg mx-auto mt-10">
+        <h1 class="text-4xl font-bold text-blue-600 text-center mb-6">Enregistrement d'une Dette</h1>
         
-        <form method="POST" action="{{ path('clients.store') }}">
+        <form method="POST" action="{{ path('dettes.store') }}">
             {{ form_start(formDette) }}
             
-            <!-- Champs du formulaire client -->
+            <!-- Champs du formulaire de dette -->
             <div class="space-y-4">
-                {{ form_widget(formClient) }}
+                {{ form_widget(formDette) }}
             </div>
 
             <!-- Toggle switch pour afficher le formulaire utilisateur -->
             <div class="mt-6 flex items-center">
-                <span class="text-gray-700 mr-3">Créer un utilisateur pour ce client</span>
+                <span class="text-gray-700 mr-3">Créer un Client</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleUser" name="toggleUser" class="sr-only" />
                     <div class="toggle-bg bg-gray-200 w-11 h-6 rounded-full shadow-inner"></div>
@@ -25,29 +25,26 @@
                 </label>
             </div>
 
-            <!-- Champs du formulaire utilisateur (cachés au départ) -->
+            <!-- Champs du formulaire client (cachés au départ) -->
             <div id="userForm" class="mt-4 hidden">
                 <div class="space-y-4">
-                    {{ form_widget(formUser) }}
+                    {{ form_widget(formClient) }}
                 </div>
             </div>
 
             <!-- Affichage des erreurs -->
             <div class="mt-4">
-                {% for error in formUser.vars.errors %}
-                    <div class="text-red-500">{{ error.message }}</div>
-                {% endfor %}
-                {% for error in formClient.vars.errors %}
+                {% for error in formDette.vars.errors %}
                     <div class="text-red-500">{{ error.message }}</div>
                 {% endfor %}
             </div>
 
             <!-- Bouton submit -->
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl mt-5">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl mt-5 transform hover:scale-105">
                 Enregistrer
             </button>
 
-            {{ form_end(formClient) }}
+            {{ form_end(formDette) }}
         </form>
     </div>
 </div>

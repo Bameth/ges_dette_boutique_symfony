@@ -17,29 +17,27 @@ class DetteType extends AbstractType
         $builder
             ->add('montant', TextType::class, [
                 'attr' => [
-                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
-                    'placeholder' => 'montant',
+                    'class' => 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out',
+                    'placeholder' => 'Montant',
                 ],
-                'label' => 'montant',
+                'label' => 'Montant',
                 'required' => false, // Définir comme non requis
             ])
             ->add('montantVerser', TextType::class, [
                 'attr' => [
-                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
-                    'placeholder' => 'montantVerser',
+                    'class' => 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out',
+                    'placeholder' => 'Montant à Verser',
                 ],
-                'label' => 'montantVerser',
+                'label' => 'Montant à Verser',
                 'required' => false, // Définir comme non requis
-            ])
-            ->add('createAt', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('updateAt', null, [
-                'widget' => 'single_text',
             ])
             ->add('client', EntityType::class, [
                 'class' => Client::class,
-                'choice_label' => 'id',
+                'choice_label' => 'surname',
+                'attr' => [
+                    'class' => 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out',
+                ],
+                'label' => 'Client',
             ])
         ;
     }

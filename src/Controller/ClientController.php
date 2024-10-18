@@ -28,7 +28,6 @@ class ClientController extends AbstractController
         } else {
             $clients = $clientRepository->paginateClients($page, $limit);
         }
-
         return $this->render('client/index.html.twig', [
             'datas' => $clients,
             'page' => $page,
