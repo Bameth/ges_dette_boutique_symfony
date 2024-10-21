@@ -5,6 +5,40 @@
 {% block body %}
 <div class="bg-gradient-to-br from-indigo-200 to-blue-300 min-h-screen py-6">
     <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-xl p-8">
+        
+        <!-- Cadre des informations du client -->
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 rounded-lg shadow-xl mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="p-4 bg-white rounded-full shadow-lg">
+                        <svg class="h-12 w-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.07 13a4 4 0 00-7.04 0m7.04 0A8 8 0 018.93 21m7.14 0A8 8 0 015.93 13m10.14 0a4 4 0 00-7.04 0M16.07 13A8 8 0 015.93 21m7.14 0A8 8 0 0116.07 13m-4-6a4 4 0 118 0 4 4 0 01-8 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-white text-3xl font-bold">{{ client.user.nom ?? 'Pas de compte' }} {{ client.user.prenom ?? '' }}</h2>
+                        <p class="text-indigo-100 text-lg">Téléphone : {{ client.telephone}}</p>
+                    </div>
+                </div>
+
+                <div class="space-x-4 text-white text-lg">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V5a4 4 0 00-8 0v4M3 13h18m-9 0v8m0 0l-3-3m3 3l3-3" />
+                        </svg>
+                        Montant dû : <span class="font-bold">XX FCFA</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Surname : {{ client.surname}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des Clients -->
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-5xl font-extrabold text-gray-800">Liste des Clients</h1>
             <a href="{{ path('clients.store') }}"
@@ -16,13 +50,13 @@
             </a>
         </div>
 
-    <div class="mb-6">
+        <div class="mb-6">
     {{ form_start(formSearch, {'attr': {'class': 'flex items-center bg-gray-100 p-4 rounded-lg shadow-inner space-x-4'}}) }}
     
     <!-- Champ de recherche par téléphone -->
     <div class="flex-grow">
         <div class="relative">
-            {{ form_row(formSearch.telephone, {
+            {{ form_row(formSearch.statusDettes, {
                 'attr': {
                     'placeholder': 'Rechercher par téléphone...',
                     'class': 'border border-gray-300 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full transition-all'
@@ -30,21 +64,6 @@
             }) }}
             <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <i class="fas fa-phone-alt mt-6"></i>
-            </span>
-        </div>
-    </div>
-    
-    <!-- Champ de recherche par surname -->
-    <div class="flex-grow">
-        <div class="relative">
-            {{ form_row(formSearch.surname, {
-                'attr': {
-                    'placeholder': 'Rechercher par surname...',
-                    'class': 'border border-gray-300 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full transition-all'
-                }
-            }) }}
-            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <i class="fas fa-user mt-6"></i>
             </span>
         </div>
     </div>
@@ -57,29 +76,28 @@
     {{ form_end(formSearch) }}
     </div>
 
-
         <div class="overflow-x-auto rounded-lg shadow-lg">
             <table class="min-w-full table-auto bg-white rounded-lg">
                 <thead class="bg-gradient-to-r from-blue-600 to-blue-800 text-white uppercase">
                     <tr>
-                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">#</th>
-                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Nom et prénom</th>
-                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Surname</th>
-                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Téléphone</th>
+                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Montant</th>
+                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Montant Verser</th>
                         <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Montant Due</th>
+                        <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-sm font-bold tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
-                {% for client in datas %}
+                {% for dette in dettes %}
                     <tr class="hover:bg-gray-100 transition duration-200">
-                        <td class="px-6 py-4 text-left">{{ loop.index }}</td>
-                        <td class="px-6 py-4">{{ client.user.nom ?? '' }} {{ client.user.prenom ?? '' }}</td>
-                        <td class="px-6 py-4">{{ client.surname }}</td>
-                        <td class="px-6 py-4">{{ client.telephone }}</td>
-                        <td class="px-6 py-4">{{ client.getTotalDette() | number_format(2, '.', ',') }} FCFA</td>
+                        <td class="px-6 py-4">{{dette.createAt |date("d/m/y")}}</td>
+                        <td class="px-6 py-4">{{dette.montant}}</td>
+                        <td class="px-6 py-4">{{dette.montantVerser}}</td>
+                        <td class="px-6 py-4">{{dette.getMontantRestant}} FCFA</td>
+                        <td class="px-6 py-4">{{dette.statusDettes.name}}</td>
                         <td class="px-6 py-4 flex space-x-4">
-                            <a href="{{ path('clients.show' , {idClient : client.id}) }}" class="text-blue-600 hover:text-blue-800 transition">
+                            <a href="#" class="text-blue-600 hover:text-blue-800 transition">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <button class="text-red-600 hover:text-red-800 transition" onclick="toggleDeleteModal()">
@@ -87,32 +105,9 @@
                             </button>
                         </td>
                     </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucun client trouvé.</td>
-                    </tr>
                 {% endfor %}
                 </tbody>
             </table>
-        </div>
-        
-        <div class="flex justify-center mt-8">
-            {% if currentPage > 1 %}
-                <a href="{{ path('clients.index', {'page': currentPage - 1}) }}" class="mx-1 px-4 py-2 border border-gray-300 bg-white text-gray-600 rounded-lg hover:bg-gray-200 transition">Précédent</a>
-            {% endif %}
-
-            {% for i in (currentPage - 2)..(currentPage + 2) %}
-                {% if i > 0 and i <= maxPage %}
-                    <a href="{{ path('clients.index', {'page': i}) }}"
-                       class="mx-1 px-4 py-2 border border-gray-300 {{ i == currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-600' }} rounded-lg hover:bg-blue-200 transition">
-                        {{ i }}
-                    </a>
-                {% endif %}
-            {% endfor %}
-
-            {% if currentPage < maxPage %}
-                <a href="{{ path('clients.index', {'page': currentPage + 1}) }}" class="mx-1 px-4 py-2 border border-gray-300 bg-white text-gray-600 rounded-lg hover:bg-gray-200 transition">Suivant</a>
-            {% endif %}
         </div>
 
         <!-- Modal de confirmation de suppression -->
@@ -124,7 +119,7 @@
                     <p class="text-gray-600 mt-2">Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.</p>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
-                    <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition" onclick="confirmDelete()">Supprimer</button>
+                    <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">Supprimer</button>
                     <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition" onclick="toggleDeleteModal()">Annuler</button>
                 </div>
             </div>

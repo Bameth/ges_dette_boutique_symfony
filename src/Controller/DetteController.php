@@ -7,6 +7,7 @@ use App\Entity\Client;
 use App\Form\DetteType;
 use App\Form\ClientType;
 use App\Form\DetteSearchType;
+use App\Repository\ClientRepository;
 use App\Repository\DetteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,18 +24,16 @@ class DetteController extends AbstractController
         $formSearch->handleRequest($request);
 
         $page = $request->query->getInt('page', 1);
-        $limit = 2;
+        $limit = 3;
 
         $criteria = [];
-
         if ($formSearch->isSubmitted() && $formSearch->isValid()) {
             $statut = $formSearch->get('statut')->getData();
 
             if ($statut) {
-                $criteria['montantVerser'] = 'montant';
+                $criteria['montantVerser'] = true;
             }
-
-            $dettes = $detteRepository->findBy($criteria);
+            $dettes = $detteRepository->findByCriteria($criteria);
         } else {
             $dettes = $detteRepository->paginateDetteClients($page, $limit);
         }
@@ -48,8 +47,6 @@ class DetteController extends AbstractController
             'formSearch' => $formSearch->createView(),
         ]);
     }
-
-
 
 
     #[Route('/dettes/store', name: 'dettes.store', methods: ['GET', 'POST'])]
@@ -77,7 +74,8 @@ class DetteController extends AbstractController
                 $client = $entityManager->getRepository(Client::class)->find($clientId);
 
                 if (!$client) {
-                    throw $this->createNotFoundException('Client non trouvé');
+                    $this->addFlash('error', 'Veuillez sélectionner un client.');
+                    return $this->redirectToRoute('dettes.new');
                 }
             }
 
@@ -94,4 +92,5 @@ class DetteController extends AbstractController
             'formClient' => $formClient->createView(),
         ]);
     }
+
 }

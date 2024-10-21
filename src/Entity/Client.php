@@ -29,7 +29,7 @@ class Client
         message: "Le numéro de téléphone doit être valide et contenir entre 9 et 12 chiffres."
     )]
     private ?string $telephone = null;
-    
+
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: "L'adresse ne doit pas être vide.")]
     private ?string $adresse = null;
@@ -46,7 +46,7 @@ class Client
     /**
      * @var Collection<int, Dette>
      */
-    #[ORM\OneToMany(targetEntity: Dette::class, mappedBy: 'client', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Dette::class, mappedBy: 'client', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $dettes;
 
     public function __construct()
@@ -151,6 +151,17 @@ class Client
 
         return $this;
     }
+    // Client.php
+
+    public function getTotalDette(): float
+    {
+        $total = 0.0;
+        foreach ($this->dettes as $dette) {
+            $total += ($dette->getMontant() - $dette->getMontantVerser());
+        }
+        return $total;
+    }
+
 
     public function removeDette(Dette $dette): static
     {

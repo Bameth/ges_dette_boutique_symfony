@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Dette;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Enum\StatusDettes;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Dette>
@@ -42,6 +43,37 @@ class DetteRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+    public function findByCriteria(array $criteria): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+
+        if (isset($criteria['montantVerser']) && $criteria['montantVerser'] === true) {
+            $queryBuilder->andWhere('d.montant = d.montantVerser');
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function findDetteByClientAndStatus(int $clientId, ?string $status = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.client', 'c')
+            ->addSelect('c')
+            ->andWhere('c.id = :clientId')
+            ->setParameter('clientId', $clientId);
+
+        if ($status === StatusDettes::PAYEE->value) {
+            $queryBuilder->andWhere('d.montant = d.montantVerser');
+        } elseif ($status === StatusDettes::IMPAYE->value) {
+            $queryBuilder->andWhere('d.montant > d.montantVerser');
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+
+
+
 
     //    public function findOneBySomeField($value): ?Dette
     //    {

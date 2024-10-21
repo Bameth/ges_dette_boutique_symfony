@@ -1,47 +1,47 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion des Clients{% endblock %}
+{% block title %}Gestion des Dettes{% endblock %}
 
 {% block body %}
 <div class="container mx-auto p-6">
-    <div class="bg-white shadow-2xl rounded-lg p-8 max-w-lg mx-auto mt-10">
-        <h1 class="text-4xl font-bold text-blue-600 text-center mb-6">Enregistrement d'une Dette</h1>
+    <div class="bg-gradient-to-br from-blue-500 to-purple-600 shadow-2xl rounded-lg p-8 max-w-lg mx-auto mt-10">
+        <h1 class="text-4xl font-extrabold text-white text-center mb-6">Enregistrement d'une Dette</h1>
         
         <form method="POST" action="{{ path('dettes.store') }}">
             {{ form_start(formDette) }}
             
             <!-- Champs du formulaire de dette -->
             <div class="space-y-4">
-                {{ form_widget(formDette) }}
+                {{ form_widget(formDette, {'attr': {'class': 'border-b border-gray-300 py-2'}}) }}
             </div>
 
-            <!-- Toggle switch pour afficher le formulaire utilisateur -->
-            <div class="mt-6 flex items-center">
-                <span class="text-gray-700 mr-3">Créer un Client</span>
+            <!-- Toggle switch pour créer un client -->
+            <div class="mt-6 flex items-center justify-between">
+                <span class="text-white font-semibold">Créer un Client</span>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleUser" name="toggleUser" class="sr-only" />
-                    <div class="toggle-bg bg-gray-200 w-11 h-6 rounded-full shadow-inner"></div>
-                    <div class="toggle-dot absolute w-5 h-5 bg-white rounded-full shadow transform transition duration-300 ease-in-out"></div>
+                    <input type="checkbox" id="toggleClient" name="toggleClient" class="sr-only" />
+                    <div class="toggle-bg bg-gray-200 w-14 h-7 rounded-full shadow-inner transition duration-200 ease-in-out"></div>
+                    <div class="toggle-dot absolute w-6 h-6 bg-white rounded-full shadow transform transition duration-300 ease-in-out"></div>
                 </label>
             </div>
 
             <!-- Champs du formulaire client (cachés au départ) -->
-            <div id="userForm" class="mt-4 hidden">
+            <div id="clientForm" class="mt-4 hidden">
                 <div class="space-y-4">
-                    {{ form_widget(formClient) }}
+                    {{ form_widget(formClient, {'attr': {'class': 'border-b border-gray-300 py-2'}}) }}
                 </div>
             </div>
 
             <!-- Affichage des erreurs -->
             <div class="mt-4">
                 {% for error in formDette.vars.errors %}
-                    <div class="text-red-500">{{ error.message }}</div>
+                    <div class="text-red-300">{{ error.message }}</div>
                 {% endfor %}
             </div>
 
             <!-- Bouton submit -->
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl mt-5 transform hover:scale-105">
-                Enregistrer
+            <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl mt-5">
+                <i class="fas fa-save"></i> Enregistrer
             </button>
 
             {{ form_end(formDette) }}
@@ -51,12 +51,12 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('toggleUser').addEventListener('change', function() {
-            const userForm = document.getElementById('userForm');
+        document.getElementById('toggleClient').addEventListener('change', function() {
+            const clientForm = document.getElementById('clientForm');
             if (this.checked) {
-                userForm.classList.remove('hidden');
+                clientForm.classList.remove('hidden');
             } else {
-                userForm.classList.add('hidden');
+                clientForm.classList.add('hidden');
             }
         });
     });
@@ -67,14 +67,39 @@
     .toggle-bg {
         transition: background-color 0.2s;
     }
-    #toggleUser:checked + .toggle-bg {
+    #toggleClient:checked + .toggle-bg {
         background-color: #4CAF50;
     }
-    #toggleUser:checked + .toggle-bg + .toggle-dot {
+    #toggleClient:checked + .toggle-bg + .toggle-dot {
         transform: translateX(100%);
     }
     .toggle-dot {
         transition: transform 0.2s;
+    }
+
+    /* Ajout d'une animation sur le bouton */
+    button {
+        position: relative;
+        overflow: hidden;
+    }
+    button:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: transform 0.4s;
+        transform: scaleX(0);
+        z-index: 0;
+    }
+    button:hover:before {
+        transform: scaleX(1);
+    }
+    button span {
+        position: relative;
+        z-index: 1;
     }
 </style>
 {% endblock %}

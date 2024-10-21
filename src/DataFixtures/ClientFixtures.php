@@ -19,13 +19,13 @@ class ClientFixtures extends Fixture
     }
     public function load(ObjectManager $manager): void
     {
+        dump('Loading ClientFixtures...');
 
-        // Création de 100 clients aléatoires
+        // Création de 50 clients aléatoires
         for ($i = 1; $i <= 50; $i++) {
-
             $client = new Client();
             $client->setSurname('Nom' . $i);
-            $client->setTelephone('77100101' . $i); //Trop long
+            $client->setTelephone('771001011' . $i);
             $client->setAdresse('Adresse' . $i);
 
             if ($i % 2 == 0) {
@@ -36,11 +36,8 @@ class ClientFixtures extends Fixture
                 $user->setLogin('login' . $i);
                 $plaintextPassword = "password";
 
-                // hash the password (based on the security.yaml config for the $user class)
-                $hashedPassword = $this->encoder->hashPassword(
-                    $user, // doit implémenter l'interface
-                    $plaintextPassword
-                );
+                // Hachage du mot de passe
+                $hashedPassword = $this->encoder->hashPassword($user, $plaintextPassword);
                 $user->setPassword($hashedPassword);
                 $client->setUser($user);
 
@@ -51,11 +48,10 @@ class ClientFixtures extends Fixture
                     $dette->setMontantVerser(150000 * $j);
                     $client->addDette($dette);
                 }
-            }
-            else{
+            } else {
                 // Création d'un client sans utilisateur
 
-                // Création des dettes non Soldées
+                // Création des dettes non soldées
                 for ($j = 1; $j <= 2; $j++) {
                     $dette = new Dette();
                     $dette->setMontant(150000 * $j);
@@ -67,7 +63,7 @@ class ClientFixtures extends Fixture
         }
 
         // Sauvegarde des données dans la base de données
-
         $manager->flush(); // Commit
+        dump('Flushed the manager');
     }
 }

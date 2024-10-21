@@ -2,10 +2,11 @@
 
 namespace App\Repository;
 
+use App\Dto\ClientSearchDto;
 use App\Entity\Client;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * @extends ServiceEntityRepository<Client>
@@ -17,18 +18,16 @@ class ClientRepository extends ServiceEntityRepository
         parent::__construct($registry, Client::class);
     }
 
-    public function paginateClients(int $page = 0, int $limit = 2): array
+    // ClientRepository.php
+
+    public function paginateClients(int $page = 1, int $limit = 2): array
     {
         $pageOffset = ($page - 1) * $limit;
 
-        $totalClients = (int) $this->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->getQuery()
-            ->getSingleScalarResult();
-
         $query = $this->createQueryBuilder('c')
             ->leftJoin('c.user', 'u')
-            ->addSelect('u')
+            ->leftJoin('c.dettes', 'd')
+            ->addSelect('u', 'd')
             ->orderBy('c.id', 'ASC')
             ->setFirstResult($pageOffset)
             ->setMaxResults($limit)
@@ -37,12 +36,32 @@ class ClientRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+
+
     public function getTotalClients(): int
     {
         return (int) $this->createQueryBuilder('c')
             ->select('COUNT(c.id)')
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function findClientBy(ClientSearchDto $clientSearchDto, int $page = 1, int $limit = 2): Paginator
+    {
+        $query = $this->createQueryBuilder('c');
+        if (!empty($clientSearchDto->telephone)) {
+            $query->andWhere('c.telephone = :telephone')
+                ->setParameter('telephone', $clientSearchDto->telephone);
+        }
+        if (!empty($clientSearchDto->surname)) {
+            $query->andWhere('c.surname = :surname')
+                ->setParameter('surname', $clientSearchDto->surname);
+        }
+         $query->orderBy('c.id', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery();
+            return new Paginator($query);
     }
 
 

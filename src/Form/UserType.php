@@ -4,10 +4,11 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class UserType extends AbstractType
 {
@@ -19,44 +20,32 @@ class UserType extends AbstractType
                     'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Nom',
                 ],
-                'label' => 'Nom',
+                'label' => false, // Suppression de l'étiquette
                 'required' => false,
-                'constraints' => [
-                    new NotBlank(['message' => 'Le nom est requis.']),
-                ],
             ])
             ->add('prenom', TextType::class, [
                 'attr' => [
                     'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Prénom',
                 ],
-                'label' => 'Prénom',
+                'label' => false, // Suppression de l'étiquette
                 'required' => false,
-                'constraints' => [
-                    new NotBlank(['message' => 'Le prénom est requis.']),
-                ],
             ])
             ->add('login', TextType::class, [
                 'attr' => [
                     'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Login',
                 ],
-                'label' => 'Login',
+                'label' => false, // Suppression de l'étiquette
                 'required' => false,
-                'constraints' => [
-                    new NotBlank(['message' => 'Le login est requis.']),
-                ],
             ])
-            ->add('password', TextType::class, [
+            ->add('password', PasswordType::class, [
                 'attr' => [
                     'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Mot de passe',
                 ],
-                'label' => 'Mot de passe',
+                'label' => false, // Suppression de l'étiquette
                 'required' => false,
-                'constraints' => [
-                    new NotBlank(['message' => 'Le mot de passe est requis.']),
-                ],
             ]);
     }
 

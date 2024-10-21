@@ -2,8 +2,8 @@
 
 namespace App\Enum;
 
-enum StatusDettes: string
+enum StatusDettes : string
 {
-    case PAYEE = 'payée';
-    case NON_PAYEE = 'non payée';
+    case PAYEE="PAYEE";
+    case IMPAYE="IMPAYEE";
 }

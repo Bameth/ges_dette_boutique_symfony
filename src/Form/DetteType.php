@@ -20,7 +20,7 @@ class DetteType extends AbstractType
                     'class' => 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out',
                     'placeholder' => 'Montant',
                 ],
-                'label' => 'Montant',
+                'label' => false,
                 'required' => false, // Définir comme non requis
             ])
             ->add('montantVerser', TextType::class, [
@@ -28,16 +28,18 @@ class DetteType extends AbstractType
                     'class' => 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out',
                     'placeholder' => 'Montant à Verser',
                 ],
-                'label' => 'Montant à Verser',
-                'required' => false, // Définir comme non requis
+                'label' => false,
+                'required' => false, 
             ])
             ->add('client', EntityType::class, [
                 'class' => Client::class,
                 'choice_label' => 'surname',
+                'placeholder' => 'Sélectionnez un client', // Option par défaut
                 'attr' => [
                     'class' => 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out',
                 ],
-                'label' => 'Client',
+                'required' => false,
+                'label' => false,
             ])
         ;
     }
