@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -41,12 +42,13 @@ class User implements PasswordAuthenticatedUserInterface
     private ?Client $client = null;
 
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->createAt = new \DateTimeImmutable();
         $this->updateAt = new \DateTimeImmutable();
         $this->isBlocked = false;
     }
-    
+
     public function getId(): ?int
     {
         return $this->id;

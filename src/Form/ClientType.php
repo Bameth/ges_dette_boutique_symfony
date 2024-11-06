@@ -2,16 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\User;
 use App\Entity\Client;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class ClientType extends AbstractType
 {
@@ -20,27 +17,39 @@ class ClientType extends AbstractType
         $builder
             ->add('surname', TextType::class, [
                 'attr' => [
-                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
+                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Surname',
                 ],
-                'label' => false, // Suppression de l'étiquette
+                'label' => false,
                 'required' => false,
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Le surname ne doit pas être vide.']),
+                    new Assert\Length(['max' => 50, 'maxMessage' => 'Le surname ne peut pas dépasser {{ limit }} caractères.']),
+                ],
             ])
             ->add('telephone', TextType::class, [
                 'attr' => [
-                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
+                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Téléphone',
                 ],
-                'label' => false, // Suppression de l'étiquette
+                'label' => false,
                 'required' => false,
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Le numéro de téléphone ne doit pas être vide.']),
+                    new Assert\Length(['max' => 50, 'maxMessage' => 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.']),
+                    new Assert\Regex(['pattern' => '/^\+?\d{9,12}$/', 'message' => 'Le numéro de téléphone doit être valide et contenir entre 9 et 12 chiffres.']),
+                ],
             ])
             ->add('adresse', TextareaType::class, [
                 'attr' => [
-                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm',
+                    'class' => 'mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm',
                     'placeholder' => 'Adresse',
                 ],
-                'label' => false, // Suppression de l'étiquette
+                'label' => false,
                 'required' => false,
+                'constraints' => [
+                    new Assert\NotBlank(['message' => "L'adresse ne doit pas être vide."]),
+                ],
             ]);
     }
 

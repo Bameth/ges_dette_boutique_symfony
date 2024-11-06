@@ -19,33 +19,51 @@
             <div class="mt-6 flex items-center justify-between">
                 <span class="text-white font-semibold">Créer un utilisateur pour ce client</span>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleUser" name="toggleUser" class="sr-only" />
-                    <div class="toggle-bg bg-gray-200 w-14 h-7 rounded-full shadow-inner transition duration-200 ease-in-out"></div>
+                    <input type="checkbox" id="toggleUser" name="toggleUser" class="sr-only" 
+                           {% if formUser.vars.errors|length > 0 or toggleUser is defined %}checked{% endif %}/>
+                    <div class="toggle-bg    bg-gray-200 w-14 h-7 rounded-full shadow-inner transition duration-200 ease-in-out"></div>
                     <div class="toggle-dot absolute w-6 h-6 bg-white rounded-full shadow transform transition duration-300 ease-in-out"></div>
                 </label>
             </div>
 
-            <!-- Champs du formulaire utilisateur (cachés au départ) -->
-            <div id="userForm" class="mt-4 hidden">
-                <div class="space-y-4">
-                    {{ form_widget(formUser, {'attr': {'class': 'border-b border-gray-300 py-2'}}) }}
-                </div>
+        <div id="userForm" class="mt-4 {% if not toggleUser is defined and formUser.vars.errors|length == 0 %}hidden{% endif %}">
+            <div class="space-y-4">
+            {{ form_widget(formUser, {'attr': {'class': 'border-b border-gray-300 py-2'}}) }}
             </div>
+        </div>
 
-            <!-- Affichage des erreurs -->
+
             <div class="mt-4">
-                {% for error in formUser.vars.errors %}
-                    <div class="text-red-300">{{ error.message }}</div>
-                {% endfor %}
+                <!-- Afficher les erreurs du formulaire client -->
                 {% for error in formClient.vars.errors %}
-                    <div class="text-red-300">{{ error.message }}</div>
+                    <div class="bg-red-100 text-red-600 p-2 rounded mb-2">{{ error.message }}</div>
                 {% endfor %}
+                
+                <!-- Afficher les erreurs du formulaire utilisateur uniquement s'il est soumis -->
+                {% if formUser.vars.errors is not empty %}
+                    <div class="mt-4">
+                        {% for error in formUser.vars.errors %}
+                            <div class="bg-red-100 text-red-600 p-2 rounded mb-2">{{ error.message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
+            {% if app.session.flashBag.has('success') %}
+    <div class="bg-green-500 text-white p-4 rounded-lg mb-4">
+        {{ app.session.flashBag.get('success')|first }}
+    </div>
+{% endif %}
+{% if app.session.flashBag.has('error') %}
+    <div class="bg-red-500 text-white p-4 rounded-lg mb-4">
+        {{ app.session.flashBag.get('error')|first }}
+    </div>
+{% endif %}
 
             <!-- Bouton submit -->
             <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-md transition duration-150 ease-in-out shadow-lg hover:shadow-xl mt-5">
                 <i class="fas fa-save"></i> Enregistrer
             </button>
+            
 
             {{ form_end(formClient) }}
         </form>
@@ -54,15 +72,21 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('toggleUser').addEventListener('change', function() {
-            const userForm = document.getElementById('userForm');
-            if (this.checked) {
-                userForm.classList.remove('hidden');
-            } else {
-                userForm.classList.add('hidden');
-            }
-        });
+    const toggleUser = document.getElementById('toggleUser');
+    const userForm = document.getElementById('userForm');
+
+    if (toggleUser.checked || {{ formUser.vars.errors|length > 0 ? 'true' : 'false' }}) {
+        userForm.classList.remove('hidden');
+    }
+
+    toggleUser.addEventListener('change', function() {
+        if (this.checked) {
+            userForm.classList.remove('hidden');
+        } else {
+            userForm.classList.add('hidden');
+        }
     });
+});
 </script>
 
 <style>
