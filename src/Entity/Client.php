@@ -24,21 +24,37 @@ class Client
 
     #[ORM\Column(length: 50)]
     private ?string $adresse = null;
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $image = null;
 
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
+        return $this;
+    }
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updateAt = null;
 
-    #[ORM\OneToOne(inversedBy: 'client', cascade: ['persist', 'remove'])]
-    private ?User $user = null;
 
     /**
      * @var Collection<int, Dette>
      */
     #[ORM\OneToMany(targetEntity: Dette::class, mappedBy: 'client', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $dettes;
+
+    #[ORM\OneToOne(inversedBy: 'client', cascade: ['persist', 'remove'])]
+    #[Assert\Type(type: User::class)]
+    #[Assert\Valid(groups: ['WITH_COMPTE'])]
+    private ?User $user = null;
+
 
     public function __construct()
     {
@@ -113,18 +129,6 @@ class Client
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Dette>
      */
@@ -162,6 +166,28 @@ class Client
                 $dette->setClient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $users): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($users === null && $this->user !== null) {
+            $this->user->setClient(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($users !== null && $users->getClient() !== $this) {
+            $users->setClient($this);
+        }
+
+        $this->user = $users;
 
         return $this;
     }

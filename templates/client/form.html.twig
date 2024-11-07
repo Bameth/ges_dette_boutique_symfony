@@ -89,6 +89,11 @@ document.addEventListener('DOMContentLoaded', function () {
     generatePasswordButton.addEventListener('click', function() {
         const password = generateSecurePassword();
         passwordField.value = password;
+
+        // Optionally, validate the password field after generating the password
+        if (passwordField) {
+            passwordField.setCustomValidity('');  // Reset custom validation error
+        }
     });
 
     // Fonction pour générer un mot de passe sécurisé
@@ -106,20 +111,20 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <style>
-    /* Style du toggle switch */
-    .toggle-bg {
-        transition: background-color 0.2s;
-    }
-    #toggleUser:checked + .toggle-bg {
-        background-color: #4CAF50;
-    }
-    #toggleUser:checked + .toggle-bg + .toggle-dot {
-        transform: translateX(100%);
-    }
-    .toggle-dot {
-        transition: transform 0.2s;
-    }
-
+ /* Style du toggle switch */
+.toggle-bg {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+#toggleUser:checked + .toggle-bg {
+    background-color: #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+#toggleUser:checked + .toggle-bg + .toggle-dot {
+    transform: translateX(100%);
+}
+.toggle-dot {
+    transition: transform 0.3s ease;
+}
     /* Ajout d'une animation sur le bouton */
     button {
         position: relative;

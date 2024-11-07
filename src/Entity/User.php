@@ -2,32 +2,47 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table("users")]
-
-class User implements PasswordAuthenticatedUserInterface
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_LOGIN', fields: ['login'])]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $nom = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $prenom = null;
-
-    #[ORM\Column(length: 100, unique: true)]
+    #[ORM\Column(length: 180)]
     private ?string $login = null;
 
-    #[ORM\Column(length: 255)]
+    /**
+     * @var list<string> The user roles
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
+    #[ORM\Column(length: 255)]
+    private ?string $prenom = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Client $client = null;
+
+    #[ORM\Column]
+    private ?bool $isBlocked = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
@@ -35,11 +50,6 @@ class User implements PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $updateAt = null;
 
-    #[ORM\Column]
-    private ?bool $isBlocked = null;
-
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private ?Client $client = null;
 
 
     public function __construct()
@@ -52,6 +62,76 @@ class User implements PasswordAuthenticatedUserInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getLogin(): ?string
+    {
+        return $this->login;
+    }
+
+    public function setLogin(string $login): static
+    {
+        $this->login = $login;
+
+        return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->login;
+    }
+
+    /**
+     * @see UserInterface
+     *
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        // $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
     public function getNom(): ?string
@@ -78,26 +158,26 @@ class User implements PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getLogin(): ?string
+    public function getClient(): ?Client
     {
-        return $this->login;
+        return $this->client;
     }
 
-    public function setLogin(string $login): static
+    public function setClient(?Client $client): static
     {
-        $this->login = $login;
+        $this->client = $client;
 
         return $this;
     }
 
-    public function getPassword(): ?string
+    public function isBlocked(): ?bool
     {
-        return $this->password;
+        return $this->isBlocked;
     }
 
-    public function setPassword(string $password): static
+    public function setBlocked(bool $isBlocked): static
     {
-        $this->password = $password;
+        $this->isBlocked = $isBlocked;
 
         return $this;
     }
@@ -122,40 +202,6 @@ class User implements PasswordAuthenticatedUserInterface
     public function setUpdateAt(\DateTimeImmutable $updateAt): static
     {
         $this->updateAt = $updateAt;
-
-        return $this;
-    }
-
-    public function isBlocked(): ?bool
-    {
-        return $this->isBlocked;
-    }
-
-    public function setBlocked(bool $isBlocked): static
-    {
-        $this->isBlocked = $isBlocked;
-
-        return $this;
-    }
-
-    public function getClient(): ?Client
-    {
-        return $this->client;
-    }
-
-    public function setClient(?Client $client): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($client === null && $this->client !== null) {
-            $this->client->setUser(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($client !== null && $client->getUser() !== $this) {
-            $client->setUser($this);
-        }
-
-        $this->client = $client;
 
         return $this;
     }

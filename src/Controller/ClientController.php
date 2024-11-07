@@ -9,6 +9,7 @@ use App\Form\ClientType;
 use App\Enum\StatusDettes;
 use App\Dto\ClientSearchDto;
 use App\Form\DetteFilterType;
+use App\Mailer\WelcomeMailer;
 use App\Form\ClientSearchType;
 use App\Repository\DetteRepository;
 use App\Repository\ClientRepository;
@@ -20,6 +21,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ClientController extends AbstractController
 {
+    private $welcomeMailer;
+
+    public function __construct(WelcomeMailer $welcomeMailer)
+    {
+        $this->welcomeMailer = $welcomeMailer;
+    }
     #[Route('/clients', name: 'clients.index', methods: ['GET', 'POST'])]
     public function index(ClientRepository $clientRepository, Request $request): Response
     {
@@ -69,6 +76,7 @@ class ClientController extends AbstractController
     }
 
     #[Route('/clients/store', name: 'clients.store', methods: ['GET', 'POST'])]
+
     public function store(Request $request, EntityManagerInterface $entityManager): Response
     {
         $client = new Client();
@@ -80,13 +88,14 @@ class ClientController extends AbstractController
         $formClient->handleRequest($request);
 
         if ($formClient->isSubmitted() && $formClient->isValid()) {
-            $entityManager->persist($client);
-
             if ($request->get('toggleUser') === 'on') {
                 $formUser->handleRequest($request);
+
                 if ($formUser->isSubmitted() && $formUser->isValid()) {
                     $entityManager->persist($user);
                     $client->setUser($user);
+
+                    $this->welcomeMailer->sendWelcomeEmail($client->getUser()->getLogin());
                 } else {
                     $this->addFlash('error', 'Veuillez remplir tous les champs utilisateur nécessaires.');
                     return $this->render('client/form.html.twig', [
@@ -98,11 +107,11 @@ class ClientController extends AbstractController
                     ]);
                 }
             }
-
+            $entityManager->persist($client);
             $entityManager->flush();
+
             return $this->redirectToRoute('clients.index');
         }
-
         return $this->render('client/form.html.twig', [
             'formClient' => $formClient->createView(),
             'formUser' => $formUser->createView(),

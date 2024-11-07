@@ -4,11 +4,15 @@ namespace App\Form;
 
 use App\Entity\Client;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormInterface;
+use App\EventSubscriber\FormClientSubscriber;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ClientType extends AbstractType
 {
@@ -50,13 +54,23 @@ class ClientType extends AbstractType
                 'constraints' => [
                     new Assert\NotBlank(['message' => "L'adresse ne doit pas être vide."]),
                 ],
-            ]);
+            ])
+            ->add('image', FileType::class, [
+                'label' => false,
+                'required' => false,
+                'mapped' => false,  // L'image n'est pas liée directement à une propriété du modèle
+                'attr' => ['accept' => 'image/*'], // Accepte uniquement les fichiers image
+            ])
+            ->addEventSubscriber(new FormClientSubscriber);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Client::class,
+            'validation_groups' => function (FormInterface $form) {
+                return $form->has("toggleUser") && $form->get("toggleUser")->getData() ? ['Default', "WITH_COMPTE"] : ['Default'];
+            }
         ]);
     }
 }
